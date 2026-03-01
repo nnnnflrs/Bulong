@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "postinstall": "rm -rf node_modules/@types/mapbox__point-geometry",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
