@@ -1,0 +1,69 @@
+"use client";
+
+import { useCallback, RefObject } from "react";
+import { MapRef } from "react-map-gl/mapbox";
+import { useRecordings } from "@/hooks/useRecordings";
+import { useMapStore } from "@/stores/mapStore";
+import { sileo } from "sileo";
+
+interface RandomListenButtonProps {
+  mapRef: RefObject<MapRef | null>;
+}
+
+export function RandomListenButton({ mapRef }: RandomListenButtonProps) {
+  const { recordings } = useRecordings();
+  const selectRecording = useMapStore((s) => s.selectRecording);
+
+  const handleClick = useCallback(() => {
+    if (recordings.length === 0) {
+      sileo.info({ title: "No recordings available yet" });
+      return;
+    }
+
+    const random = recordings[Math.floor(Math.random() * recordings.length)];
+
+    mapRef.current?.getMap()?.flyTo({
+      center: [random.longitude, random.latitude],
+      zoom: 5,
+      duration: 1500,
+    });
+
+    selectRecording(random.id);
+  }, [recordings, mapRef, selectRecording]);
+
+  return (
+    <button
+      onClick={handleClick}
+      className="
+        absolute bottom-8 left-8 z-[1000]
+        flex items-center gap-2
+        px-4 py-2.5 rounded-full
+        bg-bulong-800/80 border border-bulong-600
+        text-bulong-300 hover:text-white
+        hover:bg-bulong-700/80 hover:border-bulong-500
+        shadow-lg shadow-black/20
+        transition-all duration-200
+        hover:scale-105 active:scale-95
+      "
+      aria-label="Listen to a random recording"
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="16 3 21 3 21 8" />
+        <line x1="4" y1="20" x2="21" y2="3" />
+        <polyline points="21 16 21 21 16 21" />
+        <line x1="15" y1="15" x2="21" y2="21" />
+        <line x1="4" y1="4" x2="9" y2="9" />
+      </svg>
+      <span className="text-sm font-medium">Listen to random story</span>
+    </button>
+  );
+}
